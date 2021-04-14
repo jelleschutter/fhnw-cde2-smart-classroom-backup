@@ -19,7 +19,7 @@ def get_all_items(url, auth=None):
     items = []
     hasMore = True
     offset = 0
-    while hasMore and offset < 3000:
+    while hasMore:
         response = requests.get(current_url, auth=auth)
         content = response.json()
         items = [*items, *content['items']]
