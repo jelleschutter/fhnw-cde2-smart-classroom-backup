@@ -19,12 +19,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Build and publish
+    - name: Generate backup from scratch
       env:
         ENDPOINT: ${{ secrets.ORACLE_ENDPOINT }}
         USERNAME: ${{ secrets.ORACLE_USERNAME }}
         PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
       run: |
+        rm -rf ./data
         python main.py --username="$USERNAME" --password="$PASSWORD" --endpoint="$ENDPOINT"
     - name: Commit new backup version
       uses: stefanzweifel/git-auto-commit-action@v4
