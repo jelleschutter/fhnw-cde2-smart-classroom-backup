@@ -5,12 +5,23 @@ on:
     branches: [main]
   schedule:
     - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Decrypt oracle wallet
+      env:
+        WALLET_PASSPHRASE: ${{ secrets.ORACLE_WALLET_PASSPHRASE }}
+      run: |
+        gpg --quiet --batch --yes --decrypt --passphrase="$WALLET_PASSPHRASE" \
+        --output .github/secrets/Oracle_Wallet.zip .github/secrets/Oracle_Wallet.zip.gpg
+        mkdir secrets
+        unzip .github/secrets/Oracle_Wallet.zip -d secrets/Oracle_Wallet
+    - name: Setup Oracle DB Client
+      uses: jelleschutter/oracle-client-action@main
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -21,12 +32,18 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Generate backup from scratch
       env:
-        ENDPOINT: ${{ secrets.ORACLE_ENDPOINT }}
+        HOSTNAME: ${{ secrets.ORACLE_HOSTNAME }}
+        SERVICE: ${{ secrets.ORACLE_SERVICE }}
         USERNAME: ${{ secrets.ORACLE_USERNAME }}
         PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
       run: |
         rm -rf ./data
-        python main.py --username="$USERNAME" --password="$PASSWORD" --endpoint="$ENDPOINT"
+        python main.py \
+        --hostname="$HOSTNAME" \
+        --port=1522 \
+        --service="$SERVICE" \
+        --username="$USERNAME" \
+        --password="$PASSWORD"
     - name: Commit new backup version
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
