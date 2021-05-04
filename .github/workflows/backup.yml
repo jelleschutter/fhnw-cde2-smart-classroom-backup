@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Decrypt oracle wallet
+    - name: Decrypt Oracle Wallet
       env:
         WALLET_PASSPHRASE: ${{ secrets.ORACLE_WALLET_PASSPHRASE }}
       run: |
@@ -21,7 +21,7 @@ jobs:
         mkdir secrets
         unzip .github/secrets/Oracle_Wallet.zip -d secrets/Oracle_Wallet
     - name: Setup Oracle DB Client
-      uses: jelleschutter/oracle-client-action@main
+      uses: GoodManWEN/oracle-client-action@main
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
